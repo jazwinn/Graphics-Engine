@@ -1,13 +1,15 @@
 #version 330 core
 
-in vec2 vNormal;
-in vec4 fcolor;
+in vec3 crntPos;
+in vec3 Normal;
+in vec4 color;
+in vec2 texCoord;
 
 out vec4 FragColor;
 
 void main(){
 	// Set the fragment color to the uniform colo
-	FragColor = fcolor;
+	FragColor = color;
 
 
 }

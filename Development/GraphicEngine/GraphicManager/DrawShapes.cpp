@@ -3,7 +3,7 @@
 namespace shapes {
 
 	void CreateSphere(float radius, int sectorCount, int stackCount,
-		std::vector<GLfloat>& vertices,
+		std::vector<Vertex>& vertices,
 		std::vector<GLuint>& indices);
 
 
@@ -14,103 +14,84 @@ namespace shapes {
 		m_InstancedShader(instancedShader)
 	{
 
-		std::vector<GLfloat> verticesAABB =
+		std::vector<Vertex> verticesAABB =
 		{
-			-0.5, -0.5, -0.5 ,
-			 -0.5, -0.5, 0.5 ,
-			 -0.5, 0.5, -0.5 ,
-			 -0.5, 0.5, 0.5 ,
-			 0.5, -0.5, -0.5 ,
-			 0.5, -0.5, 0.5 ,
-			 0.5, 0.5, -0.5 ,
-			 0.5, 0.5, 0.5 ,
+			{{-0.5f, -0.5f, -0.5f}, {}, {}, {}},
+			{{-0.5f, -0.5f,  0.5f}, {}, {}, {}},
+			{{-0.5f,  0.5f, -0.5f}, {}, {}, {}},
+			{{-0.5f,  0.5f,  0.5f}, {}, {}, {}},
+
+			{{ 0.5f, -0.5f, -0.5f}, {}, {}, {}},
+			{{ 0.5f, -0.5f,  0.5f}, {}, {}, {}},
+			{{ 0.5f,  0.5f, -0.5f}, {}, {}, {}},
+			{{ 0.5f,  0.5f,  0.5f}, {}, {}, {}}
 		};
 
 		std::vector<GLuint> indicesAABB = {
-			// Bottom face edges
-			0, 1,
-			1, 5,
-			5, 4,
-			4, 0,
+			// Front face (z+)
+			1, 5, 7,
+			1, 7, 3,
 
-			// Top face edges
-			2, 3,
-			3, 7,
-			7, 6,
-			6, 2,
+			// Back face (z-)
+			4, 0, 2,
+			4, 2, 6,
 
-			// Vertical edges
-			0, 2,
-			1, 3,
-			5, 7,
-			4, 6
+			// Left face (x-)
+			0, 1, 3,
+			0, 3, 2,
+
+			// Right face (x+)
+			5, 4, 6,
+			5, 6, 7,
+
+			// Top face (y+)
+			2, 3, 7,
+			2, 7, 6,
+
+			// Bottom face (y-)
+			0, 4, 5,
+			0, 5, 1
 		};
-		m_RectangleMesh = std::make_unique<Mesh>(verticesAABB, indicesAABB);
-		m_shapeInstance[AABB] = std::make_unique<InstancedMesh>(verticesAABB, indicesAABB, m_shapeData[AABB].transformVector.size(), m_shapeData[AABB].transformVector, GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW);
+		m_RectangleMesh = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>());
+		m_shapeInstance[AABB] = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>(), m_shapeData[AABB].transformVector.size(), m_shapeData[AABB].transformVector);
 
 
-		std::vector<GLfloat> sphereVertices;
+		std::vector<Vertex> sphereVertices;
 		std::vector<GLuint> sphereIndices;
 		CreateSphere(1.0f, 36, 18, sphereVertices, sphereIndices);
-		m_shapeInstance[SPHERE] = std::make_unique<InstancedMesh>(sphereVertices, sphereIndices, m_shapeData[SPHERE].transformVector.size(), m_shapeData[SPHERE].transformVector, GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW);
+		m_shapeInstance[SPHERE] = std::make_unique<Mesh>(sphereVertices, sphereIndices, std::vector<Texture>(), m_shapeData[SPHERE].transformVector.size(), m_shapeData[SPHERE].transformVector);
 
-		std::vector<GLfloat> planeVertices = {
-		-0.5f, -0.5f, 0.0f,  // bottom-left
-		 0.5f, -0.5f, 0.0f,  // bottom-right
-		 0.5f,  0.5f, 0.0f,  // top-right
-		-0.5f,  0.5f, 0.0f   // top-left
-			};
+
+		std::vector<Vertex> planeVertices =
+		{
+			{{-0.5f, -0.5f, 0.0f}, {}, {}, {}},
+			{{0.5f, -0.5f, 0.0f}, {}, {}, {}},
+			{{ 0.5f,  0.5f, 0.0f}, {}, {}, {}},
+			{{-0.5f,  0.5f, 0.0f}, {}, {}, {}},
+		};
+
+
 		std::vector<GLuint> planeIndices = {
 		0, 1, 2,  // first triangle
 		2, 3, 0   // second triangle
 			};
-		m_shapeInstance[PLANE] = std::make_unique<InstancedMesh>(planeVertices, planeIndices, m_shapeData[PLANE].transformVector.size(), m_shapeData[PLANE].transformVector, GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW);
+		m_shapeInstance[PLANE] = std::make_unique<Mesh>(planeVertices, planeIndices, std::vector<Texture>(), m_shapeData[PLANE].transformVector.size(), m_shapeData[PLANE].transformVector);
 
-		std::vector<GLfloat> lineVertices = {
-			0.0f, 0.0f, 0.0f,
-			1.0f, 1.0f, 1.0f
+		std::vector<Vertex> lineVertices =
+		{
+			{{0.0f, 0.0f, 0.0f}, {}, {}, {}},
+			{{1.0f, 1.0f, 1.0f}, {}, {}, {}}
 		};
 
 		std::vector<GLuint> lineIndices = {
 			0, 1
 		};
 
-		m_LineMesh = std::make_unique<Mesh>(lineVertices, lineIndices, 1, std::vector<glm::mat4x4>(), GL_ARRAY_BUFFER, GL_DYNAMIC_DRAW);
+		m_LineMesh = std::make_unique<Mesh>(lineVertices, lineIndices, std::vector<Texture>());
 
 	}
 
-	void Shapes::Draw_Rectangle(const glm::mat4& vp, const glm::vec3 center, const glm::vec3 scale, const glm::vec4& color, const DrawType drawtype, const glm::vec4& wireFrameColor)
-	{
-		m_Shader.Activate();
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), center) * glm::scale(glm::mat4(1.0f), scale);
 
-		glm::mat4 m2w = vp * model;
-
-		m_Shader.setUniform("uniform_m2w", m2w);
-		m_Shader.setUniform("uniform_color", color);
-
-
-
-		switch (drawtype)
-		{
-		case FILLED:
-			m_RectangleMesh->Draw(GL_TRIANGLE_FAN);
-			break;
-		case WIREFRAME:
-
-			m_RectangleMesh->Draw(GL_LINES);
-			break;
-		case FILLEDWIREFRAME:
-			m_RectangleMesh->Draw(GL_TRIANGLE_FAN);
-
-			m_Shader.setUniform("uniform_color", wireFrameColor);
-			m_RectangleMesh->Draw(GL_LINES);
-			break;
-		default:
-			break;
-		}
-
-	}
 
 	void Shapes::Draw_Line(const glm::mat4& vp, const glm::vec3 start, const glm::vec3 end, const glm::vec4& color)
 	{
@@ -129,7 +110,7 @@ namespace shapes {
 		m_LineMesh->GetVAO().Bind();
 		m_LineMesh->GetVBO().UpdateData(lineVertices.data(), lineVertices.size() * sizeof(GLfloat), 0);
 
-		m_LineMesh->Draw(GL_LINES);
+		m_LineMesh->Draw(m_Shader, m_camera, GL_LINES);
 
 	}
 
@@ -201,37 +182,21 @@ namespace shapes {
 
 		for (const auto& [type, instance] : m_shapeInstance) {
 			auto& shapeData = m_shapeData[type];
-			if (shapeData.transformVector.size() > 0) {
-				instance->SetInstanceCount(shapeData.transformVector.size());
-				instance->GetInstancedVBO().UpdateData(shapeData.transformVector.data(), shapeData.transformVector.size() * sizeof(glm::mat4), 0);
 
-				//set color
-				instance->SetInstanceCount(shapeData.color.size());
-				instance->GetColorVBO().UpdateData(shapeData.color.data(), shapeData.color.size() * sizeof(glm::vec4), 0);
 
-				{
-					m_InstancedShader.Activate();
-					m_InstancedShader.setUniform("uniform_m2w", m_camera.GetViewProjectionMatrix());
+			instance->SetInstanceCount(shapeData.transformVector.size());
+			instance->GetInstanceVBO().UpdateData(shapeData.transformVector.data(), shapeData.transformVector.size() * sizeof(glm::mat4), 0);
+			instance->SetInstanceCount(shapeData.color.size());
+			instance->GetColorVBO().UpdateData(shapeData.color.data(), shapeData.color.size() * sizeof(glm::vec4), 0);
 
-					switch (FILLEDWIREFRAME)
-					{
-					case FILLED:
-						instance->Draw(GL_TRIANGLE_FAN);
-						break;
-					case WIREFRAME:
+			if (shapeData.transformVector.size() == 1) {
 
-						instance->Draw(GL_LINES);
-						break;
-					case FILLEDWIREFRAME:
-						instance->Draw(GL_TRIANGLE_FAN);
+				instance->Draw(m_Shader, m_camera, shapeData.transformVector[0]);
+				shapeData.transformVector.clear();
+			}
+			else if (shapeData.transformVector.size() > 1) {
 
-						m_Shader.setUniform("uniform_color", glm::vec4{1.f,1.f,1.f,1.f});
-						instance->Draw(GL_LINES);
-						break;
-					default:
-						break;
-					}
-				}
+				instance->Draw(m_Shader, m_camera);
 
 
 				shapeData.transformVector.clear();
@@ -243,7 +208,7 @@ namespace shapes {
 
 
 	void CreateSphere(float radius, int sectorCount, int stackCount,
-		std::vector<GLfloat>& vertices,
+		std::vector<Vertex>& vertices,
 		std::vector<GLuint>& indices)
 	{
 		const float PI = 3.14159265359f;
@@ -259,9 +224,8 @@ namespace shapes {
 				float x = xy * cosf(sectorAngle);
 				float y = xy * sinf(sectorAngle);
 
-				vertices.push_back(x);
-				vertices.push_back(y);
-				vertices.push_back(z);
+				vertices.emplace_back(Vertex{ {x,y,z},{},{},{} });
+
 			}
 		}
 
@@ -285,6 +249,39 @@ namespace shapes {
 			}
 		}
 	}
+
+	//void Shapes::Draw_Rectangle(const glm::mat4& vp, const glm::vec3 center, const glm::vec3 scale, const glm::vec4& color, const DrawType drawtype, const glm::vec4& wireFrameColor)
+//{
+//	m_Shader.Activate();
+//	glm::mat4 model = glm::translate(glm::mat4(1.0f), center) * glm::scale(glm::mat4(1.0f), scale);
+
+//	glm::mat4 m2w = vp * model;
+
+//	m_Shader.setUniform("uniform_m2w", m2w);
+//	m_Shader.setUniform("uniform_color", color);
+
+
+
+//	switch (drawtype)
+//	{
+//	case FILLED:
+//		m_RectangleMesh->Draw(GL_TRIANGLE_FAN);
+//		break;
+//	case WIREFRAME:
+
+//		m_RectangleMesh->Draw(GL_LINES);
+//		break;
+//	case FILLEDWIREFRAME:
+//		m_RectangleMesh->Draw(GL_TRIANGLE_FAN);
+
+//		m_Shader.setUniform("uniform_color", wireFrameColor);
+//		m_RectangleMesh->Draw(GL_LINES);
+//		break;
+//	default:
+//		break;
+//	}
+
+//}
 
 }
 

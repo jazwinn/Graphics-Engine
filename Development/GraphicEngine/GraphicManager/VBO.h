@@ -5,12 +5,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
+struct Vertex
+{
+	glm::vec3 position;
+	glm::vec3 normal;
+	glm::vec3 color;
+	glm::vec2 texUV;
+};
+
 class VBO
 {
 public:
 
 	template <typename T>
-	VBO(const std::vector<T>& vertices, GLenum target = GL_ARRAY_BUFFER, GLenum drawMode = GL_STATIC_DRAW) :
+	VBO(const std::vector<T>& vertices, GLenum drawMode = GL_DYNAMIC_DRAW, GLenum target = GL_ARRAY_BUFFER) :
 		m_Target(target),
 		m_DrawMode(drawMode),
 		m_Size(vertices.size() * sizeof(T))
@@ -19,8 +27,7 @@ public:
 		glBindBuffer(target, m_ID); //bind VBO
 
 		//assign vertices data into the VBO
-		glBufferData(target, m_Size, nullptr, drawMode);
-		glBufferSubData(target, 0, m_Size, vertices.data());
+		glBufferData(target, m_Size, vertices.data(), drawMode);
 
 	}
 

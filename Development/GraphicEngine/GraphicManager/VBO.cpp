@@ -3,7 +3,7 @@
 
 void VBO::UpdateData(const void* data, GLsizeiptr size, GLintptr offset)
 {
-	glBindBuffer(m_Target, m_ID);
+	Bind();
 
 
 	if (size != m_Size) {
@@ -13,6 +13,8 @@ void VBO::UpdateData(const void* data, GLsizeiptr size, GLintptr offset)
 		m_Size = size; // Update the size
 	}
 	glBufferSubData(m_Target, offset, size, data);
+
+	Unbind();
 
 }
 

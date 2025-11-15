@@ -22,6 +22,19 @@ namespace graphic {
 			m_camera.Resize(width, height);
 		});
 
+
+		glEnable(GL_SCISSOR_TEST);
+		glEnable(GL_DEPTH_TEST);
+
+		if (config.backFaceCulling) {
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glFrontFace(GL_CCW);
+		}
+		else {
+			glDisable(GL_CULL_FACE);
+		}
+
 	}
 
 	GraphicPipeline::~GraphicPipeline()
@@ -83,21 +96,14 @@ namespace graphic {
 
 	void GraphicPipeline::StartFrame()
 	{
+		glClearDepth(1.0);
+		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void GraphicPipeline::EndFrame()
 	{
-		glEnable(GL_SCISSOR_TEST);
-		glEnable(GL_DEPTH_TEST);
 
-		if (config.backFaceCulling) {
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_BACK);
-			glFrontFace(GL_CCW);
-		}
-		else {
-			glDisable(GL_CULL_FACE);
-		}
 	}
 
 }
