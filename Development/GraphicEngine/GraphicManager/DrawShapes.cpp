@@ -53,14 +53,13 @@ namespace shapes {
 			0, 5, 1
 		};
 		m_RectangleMesh = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>());
-		m_shapeInstance[AABB] = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>(), m_shapeData[AABB].transformVector.size(), m_shapeData[AABB].transformVector);
+		m_shapeInstance[AABB] = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>(),2, m_shapeData[AABB].transformVector); // set size to 2 to initialize instance rendering
 
 
 		std::vector<Vertex> sphereVertices;
 		std::vector<GLuint> sphereIndices;
 		CreateSphere(1.0f, 36, 18, sphereVertices, sphereIndices);
-		m_shapeInstance[SPHERE] = std::make_unique<Mesh>(sphereVertices, sphereIndices, std::vector<Texture>(), m_shapeData[SPHERE].transformVector.size(), m_shapeData[SPHERE].transformVector);
-
+		m_shapeInstance[SPHERE] = std::make_unique<Mesh>(sphereVertices, sphereIndices, std::vector<Texture>(), 2, m_shapeData[SPHERE].transformVector); // set size to 2 to initialize instance rendering
 
 		std::vector<Vertex> planeVertices =
 		{
@@ -191,14 +190,15 @@ namespace shapes {
 			instance->SetInstanceCount(shapeData.color.size());
 			instance->GetColorVBO().UpdateData(shapeData.color.data(), shapeData.color.size() * sizeof(glm::vec4), 0);
 
+
 			if (shapeData.transformVector.size() == 1) {
 
 				instance->Draw(m_Shader, m_camera, shapeData.transformVector[0]);
 			}
-			//else if (shapeData.transformVector.size() > 1) {
+			else if (shapeData.transformVector.size() > 1) {
 
-			//	instance->Draw(m_Shader, m_camera);
-			//}
+				instance->Draw(m_InstancedShader, m_camera);
+			}
 
 			shapeData.transformVector.clear();
 			shapeData.color.clear();
