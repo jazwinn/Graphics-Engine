@@ -25,18 +25,20 @@ int main() {
 		graphics.StartFrame();
 
 
-		graphics.Shapes().DrawCube({ 0,0,0 }, { 0,0,0 }, { 50,50,50 }, {1,0,0,1});
-		graphics.Shapes().DrawCube({ 50,0,0 }, { 0,0,0 }, { 50,50,50 }, {0,1,0,1});
-		graphics.Shapes().DrawCube({ 100,0,0 }, { 0,0,0 }, { 50,50,50 }, { 0,0,1,1 });
+		//graphics.Shapes().DrawCube({ 0,0,0 }, { 0,0,0 }, { 50,50,50 }, {1,0,0,1});
+		//graphics.Shapes().DrawCube({ 50,0,0 }, { 0,0,0 }, { 50,50,50 }, {0,1,0,1});
+		//graphics.Shapes().DrawCube({ 100,0,0 }, { 0,0,0 }, { 50,50,50 }, { 0,0,1,1 });
 
-		//graphics.Shapes().DrawSphere(shapes::Sphere({ 0,2000,0 }, 30));
+		shapes::Plane plane;
+		plane.d = 0;
+		plane.normal = glm::vec3(0.0f, 1.0f, 0.0f);
 
-		//shapes::Plane plane;
-		//plane.d = 0;
-		//plane.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		// Draw a 5x5 plane with red color
+		graphics.Shapes().DrawPlane(plane, 100.0f, 100.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
-		//// Draw a 5x5 plane with red color
-		//graphics.Shapes().DrawPlane(plane, 100.0f, 100.0f, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		graphics.Shapes().DrawSphere(shapes::Sphere({ 0,20,0 }, 30));
+
+
 
 
 		graphics.Update(deltaTime);

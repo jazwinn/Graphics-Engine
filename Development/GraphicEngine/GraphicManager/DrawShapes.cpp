@@ -183,6 +183,8 @@ namespace shapes {
 		for (const auto& [type, instance] : m_shapeInstance) {
 			auto& shapeData = m_shapeData[type];
 
+			if (shapeData.transformVector.empty())
+				continue;
 
 			instance->SetInstanceCount(shapeData.transformVector.size());
 			instance->GetInstanceVBO().UpdateData(shapeData.transformVector.data(), shapeData.transformVector.size() * sizeof(glm::mat4), 0);
@@ -192,15 +194,14 @@ namespace shapes {
 			if (shapeData.transformVector.size() == 1) {
 
 				instance->Draw(m_Shader, m_camera, shapeData.transformVector[0]);
-				shapeData.transformVector.clear();
 			}
-			else if (shapeData.transformVector.size() > 1) {
+			//else if (shapeData.transformVector.size() > 1) {
 
-				instance->Draw(m_Shader, m_camera);
+			//	instance->Draw(m_Shader, m_camera);
+			//}
 
-
-				shapeData.transformVector.clear();
-			}
+			shapeData.transformVector.clear();
+			shapeData.color.clear();
 		}
 
 	}
