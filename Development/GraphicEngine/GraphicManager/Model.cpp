@@ -5,7 +5,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 #include <filesystem>
 
-Model::Model(const char* file):m_file(file) {
+Model::Model(const char* file, Material material):m_file(file), m_material(material) {
 
     Assimp::Importer importer;
     importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
@@ -160,5 +160,48 @@ std::vector<GLuint> Model::LoadIndices(const aiMesh* mesh)
 
 std::vector<Texture> Model::LoadTexture(const aiMaterial* material)
 {
-    return std::vector<Texture>();
+    std::vector<Texture> textures;
+
+    // Diffuse maps
+    if (!m_material.diffuseDirectory.empty()) {
+        auto diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE, m_material.diffuseDirectory);
+        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+    }
+
+    // Specular maps
+    if (!m_material.specularDirectory.empty()) {
+
+        auto specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR, m_material.specularDirectory);
+        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+    }
+
+    // Normal maps
+    if (!m_material.normalDirectory.empty()) {
+        auto normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, NORMAL, m_material.normalDirectory);
+        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+    }
+
+
+
+
+
+
+    return textures;
+}
+
+std::vector<Texture> Model::loadMaterialTextures(const aiMaterial* mat, aiTextureType type, TextureType textureType, const std::string& directory)
+{
+    std::vector<Texture> textures;
+
+    unsigned int count = mat->GetTextureCount(type);
+    for (unsigned int i = 0; i < count; i++)
+    {
+        aiString str;
+        mat->GetTexture(type, i, &str);
+
+        Texture texture(directory.c_str(), textureType, nextTextureSlot++);
+        textures.push_back(texture);
+    }
+
+    return textures;
 }
