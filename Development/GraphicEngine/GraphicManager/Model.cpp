@@ -8,11 +8,17 @@
 Model::Model(const char* file):m_file(file) {
 
     Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(m_file, aiProcess_Triangulate |
+    importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
+    const aiScene* scene = importer.ReadFile(m_file, 
+        aiProcess_Triangulate |
         aiProcess_FlipUVs |
         aiProcess_GenNormals |
+        aiProcess_GlobalScale |
         aiProcess_JoinIdenticalVertices |
-        aiProcess_CalcTangentSpace);
+        aiProcess_CalcTangentSpace |
+        aiProcess_ImproveCacheLocality|
+        aiProcess_SortByPType
+    );
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "Assimp error: " << importer.GetErrorString() << std::endl;
         return;
@@ -47,6 +53,12 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         unsigned int meshIndex = node->mMeshes[i];
+        aiMesh* mesh = scene->mMeshes[meshIndex];
+
+        if (mesh->mPrimitiveTypes & aiPrimitiveType_POINT)
+        {
+            continue;   // Skip this mesh
+        }
 
         // Store global matrix for the mesh
         m_matricesMeshes.push_back(globalTransform);
@@ -64,7 +76,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
         m_scalesMeshes.push_back(scale);
 
         //load mesh
-        aiMesh* mesh = scene->mMeshes[meshIndex];
+        
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
         std::vector<Vertex> vertices = LoadVertex(mesh);

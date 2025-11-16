@@ -7,8 +7,8 @@ int main() {
 	window::Window window(1600, 800);
 	graphic::GraphicPipeline graphics(window);
 
-	Model model("../Resource/untitled.fbx");
-
+	Model model("../Resource/backpack.fbx");
+	Model model2("../Resource/person.obj");
 	auto start = std::chrono::high_resolution_clock::now(); // Start timer
 	float lastTime = static_cast<float>(glfwGetTime());
 	float deltaTime = 0.0f;
@@ -44,6 +44,8 @@ int main() {
 		//graphics.Shapes().DrawPlane(plane, 100.0f, 100.0f);
 
 		model.Draw(graphics.GetShader(), graphics.Camera());
+		model2.Draw(graphics.GetShader(), graphics.Camera());
+
 
 		graphics.Update(deltaTime);
 		
