@@ -27,9 +27,6 @@ public:
 	VBO& GetInstanceVBO() {
 		return m_instanceVBO;
 	}
-	VBO& GetColorVBO() {
-		return m_ColorVBO;
-	}
 
 	VBO& GetVBO() {
 		return m_VBO;
@@ -54,10 +51,8 @@ private:
 	VAO m_VAO;
 	VBO m_VBO;
 	VBO m_instanceVBO;
-	VBO m_ColorVBO;
 	EBO m_EBO;
 
-	GLuint m_indexCount;
 	GLuint m_instance;
 
 	std::vector<Vertex> m_vertices;

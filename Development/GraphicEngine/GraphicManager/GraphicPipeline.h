@@ -9,6 +9,7 @@
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
+#include "Model.h"
 #include "DrawShapes.h"
 #include "Camera.h"
 
@@ -35,6 +36,8 @@ namespace graphic {
 
 		camera::Camera& Camera() { return m_camera; }
 		shapes::Shapes& Shapes() { return m_Shapes; }
+		Shader& GetShader() { return m_genericShader; }
+		Shader& GetInstancedShader() { return m_InstancedShader; }
 
 
 		GraphicConfig config;

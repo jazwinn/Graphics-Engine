@@ -4,21 +4,18 @@ Mesh::Mesh(const std::vector<Vertex>& vboData, const std::vector<GLuint>& eboDat
 	m_vertices{ vboData },
 	m_indices{ eboData },
 	m_instance{ instance },
+	m_texture{texture},
 	m_EBO(eboData),
 	m_VBO(vboData, DrawType, target),
-	m_instanceVBO(instanceMatrix, DrawType, target),
-	m_ColorVBO(std::vector<glm::vec4>(instanceMatrix.size(), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)), DrawType, target)
+	m_instanceVBO(instanceMatrix, DrawType, target)
 {
-	m_indexCount = (GLuint)m_indices.size();
 
 	m_VAO.Bind();
 
 	m_VAO.LinkAttribute(m_VBO, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
-	m_VAO.LinkAttribute(m_VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)(3 * sizeof(float)));
-	m_VAO.LinkAttribute(m_VBO, 2, 3, GL_FLOAT, sizeof(Vertex), (void*)(6 * sizeof(float)));
-	m_VAO.LinkAttribute(m_VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)(9 * sizeof(float)));
-
-	m_VAO.LinkAttribute(m_ColorVBO, 8, 4, GL_FLOAT, sizeof(glm::vec4), (void*)(0)); // color
+	m_VAO.LinkAttribute(m_VBO, 1, 3, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+	m_VAO.LinkAttribute(m_VBO, 2, 4, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, color));
+	m_VAO.LinkAttribute(m_VBO, 3, 2, GL_FLOAT, sizeof(Vertex), (void*)offsetof(Vertex, texUV));
 	if (instance != 1)
 	{
 		m_instanceVBO.Bind();
@@ -34,8 +31,6 @@ Mesh::Mesh(const std::vector<Vertex>& vboData, const std::vector<GLuint>& eboDat
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
-		glVertexAttribDivisor(8, 1);
-
 	}
 	// Unbind all to prevent accidentally modifying them
 	m_VAO.Unbind();
@@ -52,7 +47,6 @@ Mesh::~Mesh()
 	m_VBO.Delete();
 	m_EBO.Delete();
 	m_instanceVBO.Delete();
-	m_ColorVBO.Delete();
 }
 
 void Mesh::Draw(Shader& shader, camera::Camera& camera,
@@ -82,11 +76,11 @@ void Mesh::Draw(Shader& shader, camera::Camera& camera,
 		shader.setUniform("scale", sca);
 		shader.setUniform("model", model);
 
-		glDrawElements(mode, m_indexCount, GL_UNSIGNED_INT, 0);
+		glDrawElements(mode, m_indices.size(), GL_UNSIGNED_INT, 0);
 		
 	}
 	else {
-		glDrawElementsInstanced(mode, m_indexCount, GL_UNSIGNED_INT, 0, m_instance);
+		glDrawElementsInstanced(mode, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance);
 	}
 
 	m_VAO.Unbind();

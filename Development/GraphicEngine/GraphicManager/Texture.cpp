@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Texture::Texture(const char* image, const char* texType, GLuint slot)
+Texture::Texture(const char* image, TextureType texType, GLuint slot)
 {
 	type = texType;
 

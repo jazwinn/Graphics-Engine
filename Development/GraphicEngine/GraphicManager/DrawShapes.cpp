@@ -16,41 +16,67 @@ namespace shapes {
 
 		std::vector<Vertex> verticesAABB =
 		{
-			{{-0.5f, -0.5f, -0.5f}, {}, {}, {}},
-			{{-0.5f, -0.5f,  0.5f}, {}, {}, {}},
-			{{-0.5f,  0.5f, -0.5f}, {}, {}, {}},
-			{{-0.5f,  0.5f,  0.5f}, {}, {}, {}},
+			// -X Face
+			{{-0.5f,-0.5f,-0.5f}, {-1,0,0}, {1,1,1,1}, {0,0}},
+			{{-0.5f, 0.5f,-0.5f}, {-1,0,0}, {1,1,1,1}, {0,1}},
+			{{-0.5f, 0.5f, 0.5f}, {-1,0,0}, {1,1,1,1}, {1,1}},
+			{{-0.5f,-0.5f, 0.5f}, {-1,0,0}, {1,1,1,1}, {1,0}},
 
-			{{ 0.5f, -0.5f, -0.5f}, {}, {}, {}},
-			{{ 0.5f, -0.5f,  0.5f}, {}, {}, {}},
-			{{ 0.5f,  0.5f, -0.5f}, {}, {}, {}},
-			{{ 0.5f,  0.5f,  0.5f}, {}, {}, {}}
+			// +X Face
+			{{0.5f,-0.5f,-0.5f}, {1,0,0}, {1,1,1,1}, {0,0}},
+			{{0.5f, 0.5f,-0.5f}, {1,0,0}, {1,1,1,1}, {0,1}},
+			{{0.5f, 0.5f, 0.5f}, {1,0,0}, {1,1,1,1}, {1,1}},
+			{{0.5f,-0.5f, 0.5f}, {1,0,0}, {1,1,1,1}, {1,0}},
+
+			// -Y Face
+			{{-0.5f,-0.5f, 0.5f}, {0,-1,0}, {1,1,1,1}, {0,0}},
+			{{ 0.5f,-0.5f, 0.5f}, {0,-1,0}, {1,1,1,1}, {1,0}},
+			{{ 0.5f,-0.5f,-0.5f}, {0,-1,0}, {1,1,1,1}, {1,1}},
+			{{-0.5f,-0.5f,-0.5f}, {0,-1,0}, {1,1,1,1}, {0,1}},
+
+			// +Y Face
+			{{-0.5f, 0.5f,-0.5f}, {0,1,0}, {1,1,1,1}, {0,0}},
+			{{ 0.5f, 0.5f,-0.5f}, {0,1,0}, {1,1,1,1}, {1,0}},
+			{{ 0.5f, 0.5f, 0.5f}, {0,1,0}, {1,1,1,1}, {1,1}},
+			{{-0.5f, 0.5f, 0.5f}, {0,1,0}, {1,1,1,1}, {0,1}},
+
+			// -Z Face
+			{{-0.5f,-0.5f,-0.5f}, {0,0,-1}, {1,1,1,1}, {0,0}},
+			{{ 0.5f,-0.5f,-0.5f}, {0,0,-1}, {1,1,1,1}, {1,0}},
+			{{ 0.5f, 0.5f,-0.5f}, {0,0,-1}, {1,1,1,1}, {1,1}},
+			{{-0.5f, 0.5f,-0.5f}, {0,0,-1}, {1,1,1,1}, {0,1}},
+
+			// +Z Face
+			{{-0.5f,-0.5f, 0.5f}, {0,0,1}, {1,1,1,1}, {0,0}},
+			{{ 0.5f,-0.5f, 0.5f}, {0,0,1}, {1,1,1,1}, {1,0}},
+			{{ 0.5f, 0.5f, 0.5f}, {0,0,1}, {1,1,1,1}, {1,1}},
+			{{-0.5f, 0.5f, 0.5f}, {0,0,1}, {1,1,1,1}, {0,1}},
 		};
 
 		std::vector<GLuint> indicesAABB = {
-			// Front face (z+)
-			1, 5, 7,
-			1, 7, 3,
+			// -X face
+			0, 1, 2,
+			0, 2, 3,
 
-			// Back face (z-)
-			4, 0, 2,
-			4, 2, 6,
+			// +X face
+			4, 5, 6,
+			4, 6, 7,
 
-			// Left face (x-)
-			0, 1, 3,
-			0, 3, 2,
+			// -Y face
+			8, 9, 10,
+			8, 10, 11,
 
-			// Right face (x+)
-			5, 4, 6,
-			5, 6, 7,
+			// +Y face
+			12, 13, 14,
+			12, 14, 15,
 
-			// Top face (y+)
-			2, 3, 7,
-			2, 7, 6,
+			// -Z face
+			16, 17, 18,
+			16, 18, 19,
 
-			// Bottom face (y-)
-			0, 4, 5,
-			0, 5, 1
+			// +Z face
+			20, 21, 22,
+			20, 22, 23
 		};
 		m_RectangleMesh = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>());
 		m_shapeInstance[AABB] = std::make_unique<Mesh>(verticesAABB, indicesAABB, std::vector<Texture>(),2, m_shapeData[AABB].transformVector); // set size to 2 to initialize instance rendering
@@ -61,12 +87,18 @@ namespace shapes {
 		CreateSphere(1.0f, 36, 18, sphereVertices, sphereIndices);
 		m_shapeInstance[SPHERE] = std::make_unique<Mesh>(sphereVertices, sphereIndices, std::vector<Texture>(), 2, m_shapeData[SPHERE].transformVector); // set size to 2 to initialize instance rendering
 
-		std::vector<Vertex> planeVertices =
-		{
-			{{-0.5f, -0.5f, 0.0f}, {}, {}, {}},
-			{{0.5f, -0.5f, 0.0f}, {}, {}, {}},
-			{{ 0.5f,  0.5f, 0.0f}, {}, {}, {}},
-			{{-0.5f,  0.5f, 0.0f}, {}, {}, {}},
+		std::vector<Vertex> planeVertices = {
+			// Bottom-left
+			{{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,1,1,1}, {0.0f, 0.0f}},
+
+			// Bottom-right
+			{{ 0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,1,1,1}, {1.0f, 0.0f}},
+
+			// Top-right
+			{{ 0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,1,1,1}, {1.0f, 1.0f}},
+
+			// Top-left
+			{{-0.5f,  0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1,1,1,1}, {0.0f, 1.0f}}
 		};
 
 
@@ -187,8 +219,6 @@ namespace shapes {
 
 			instance->SetInstanceCount(shapeData.transformVector.size());
 			instance->GetInstanceVBO().UpdateData(shapeData.transformVector.data(), shapeData.transformVector.size() * sizeof(glm::mat4), 0);
-			instance->SetInstanceCount(shapeData.color.size());
-			instance->GetColorVBO().UpdateData(shapeData.color.data(), shapeData.color.size() * sizeof(glm::vec4), 0);
 
 
 			if (shapeData.transformVector.size() == 1) {
@@ -214,19 +244,28 @@ namespace shapes {
 	{
 		const float PI = 3.14159265359f;
 
-		for (int i = 0; i <= stackCount; ++i) {
+		for (int i = 0; i <= stackCount; ++i)
+		{
 			float stackAngle = PI / 2 - i * (PI / stackCount); // from pi/2 to -pi/2
 			float xy = radius * cosf(stackAngle);
 			float z = radius * sinf(stackAngle);
 
-			for (int j = 0; j <= sectorCount; ++j) {
+			for (int j = 0; j <= sectorCount; ++j)
+			{
 				float sectorAngle = j * (2 * PI / sectorCount);
 
 				float x = xy * cosf(sectorAngle);
 				float y = xy * sinf(sectorAngle);
 
-				vertices.emplace_back(Vertex{ {x,y,z},{},{},{} });
+				glm::vec3 pos = { x, y, z };
+				glm::vec3 normal = glm::normalize(pos);
+				glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+				glm::vec2 uv = {
+					(float)j / sectorCount,  // u
+					(float)i / stackCount    // v
+				};
 
+				vertices.emplace_back(Vertex{ pos, normal, color, uv });
 			}
 		}
 

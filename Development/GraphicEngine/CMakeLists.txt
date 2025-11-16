@@ -39,4 +39,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
 find_package(glad CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC glad::glad)
 
+find_package(assimp CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PUBLIC assimp::assimp)
+
 
