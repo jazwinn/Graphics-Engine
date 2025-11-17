@@ -94,7 +94,7 @@ int main() {
 	window::Window window(1600, 800);
 	graphic::GraphicPipeline graphics(window);
 
-	Light light(graphics.GetLightShader(), verticesAABB, indicesAABB);
+	Light light(graphics.GetLightShader(),SPOT , verticesAABB, indicesAABB);
 	light.SetPosition({ 0.f,0.f,5.f });
 	light.SetColor({1.f,0.f,0.f,1.f});
 
@@ -103,7 +103,7 @@ int main() {
 	Mesh testmesh(planeVertices, planeIndices, texture);
 	
 
-	Model model2("../Resource/Attack helicopter.glb");
+	Model model2("../Resource/car.blend");
 
 	auto start = std::chrono::high_resolution_clock::now(); // Start timer
 	float lastTime = static_cast<float>(glfwGetTime());

@@ -1,9 +1,15 @@
 #pragma once
 #include "Mesh.h"
 
+enum LightType{
+	POINT = 0,
+	DIRECTION,
+	SPOT
+};
+
 class Light {
 public:
-	Light(Shader& lightShader, const std::vector<Vertex>& vboData = std::vector<Vertex>(), const std::vector<GLuint>& eboDat = std::vector<GLuint>(), const std::vector<Texture>& texture = std::vector<Texture>());
+	Light(Shader& lightShader, LightType type = DIRECTION, const std::vector<Vertex>& vboData = std::vector<Vertex>(), const std::vector<GLuint>& eboDat = std::vector<GLuint>(), const std::vector<Texture>& texture = std::vector<Texture>());
 	void Draw(Shader& shader, camera::Camera& camera);
 
 
@@ -19,6 +25,7 @@ public:
 private:
 	Shader& m_lightShader;
 	Mesh m_mesh;
+	LightType m_type;
 	glm::vec4 m_color = glm::vec4{1.f,1.f,1.f,1.f};
 	glm::vec3 m_position;
 	glm::mat4 m_model;

@@ -13,7 +13,7 @@ uniform sampler2D specular0;
 uniform vec4 lightColor = vec4(1.0);;
 uniform vec3 lightPos = vec3(0.0, 5.0, 0.0);;
 uniform vec3 camPos;
-
+uniform int lightType;
 uniform bool useTexture;
 
 vec4 getDiffuseColor() {
@@ -112,8 +112,19 @@ vec4 spotLight()
 
 
 void main(){
+	vec4 light;
+	if(lightType == 0){
+		light = pointLight();
+	}
+	else if(lightType == 1){
+		
+		light = directLight();
+	}
+	else if(lightType == 2){
+		
+		light = spotLight();
+	}
 	
-	vec4 light = directLight();
 
 	FragColor = color * light;
 }

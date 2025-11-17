@@ -1,8 +1,9 @@
 #include "Light.h"
 
-Light::Light(Shader& lightShader, const std::vector<Vertex>& vboData, const std::vector<GLuint>& eboData, const std::vector<Texture>& texture):
+Light::Light(Shader& lightShader, LightType type, const std::vector<Vertex>& vboData, const std::vector<GLuint>& eboData, const std::vector<Texture>& texture):
 	m_mesh(vboData, eboData, texture),
-	m_lightShader(lightShader)
+	m_lightShader(lightShader),
+	m_type(type)
 {
 
 }
@@ -13,11 +14,11 @@ void Light::Draw(Shader& shader, camera::Camera& camera)
 	objectModel = glm::translate(objectModel, m_position);
 
 	m_lightShader.setUniform("lightColor", m_color);
-	m_mesh.Draw(m_lightShader, camera, objectModel);
+	m_mesh.Draw(shader, camera, objectModel);
 
 
 	shader.setUniform("lightColor", m_color);
 	shader.setUniform("lightPos", m_position); 
-	
+	shader.setUniform("lightType", m_type);
 
 }

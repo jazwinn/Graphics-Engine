@@ -15,10 +15,6 @@ Model::Model(const char* file, Material material):m_file(file), m_material(mater
         aiProcess_Triangulate |
         aiProcess_FlipUVs |
         aiProcess_GenNormals |
-        aiProcess_GlobalScale |
-        aiProcess_JoinIdenticalVertices |
-        aiProcess_CalcTangentSpace |
-        aiProcess_ImproveCacheLocality|
         aiProcess_SortByPType
     );
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
