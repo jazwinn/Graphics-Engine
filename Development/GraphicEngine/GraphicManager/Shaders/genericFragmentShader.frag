@@ -18,7 +18,7 @@ uniform int specularCount;
 uniform vec4 lightColor = vec4(1.0);;
 uniform vec3 lightPos = vec3(0.0, 5.0, 0.0);;
 uniform vec3 camPos;
-uniform int lightType;
+uniform int lightType = 1;
 uniform bool useTexture;
 
 vec4 getDiffuseColor() {
@@ -74,7 +74,7 @@ vec4 pointLight()
 vec4 directLight()
 {
 	// ambient lighting
-	float ambient = 1.f;
+	float ambient = 0.8f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);
