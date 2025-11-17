@@ -187,7 +187,7 @@ std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScen
                 aiString str;
                 material->GetTexture(aiType, i, &str);
 
-                TextureType texType = TextureType::DIFFUSE; // default
+                TextureType texType = TextureType::NONE; // default
 
                 switch (aiType)
                 {
@@ -198,8 +198,10 @@ std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScen
                 case aiTextureType_DIFFUSE_ROUGHNESS: texType = TextureType::ROUGHNESS; break;
                 case aiTextureType_EMISSIVE: texType = TextureType::EMISSIVE; break;
                 case aiTextureType_AMBIENT_OCCLUSION: texType = TextureType::AO; break;
-                default: texType = TextureType::DIFFUSE; break;
+                default: texType = TextureType::NONE; break;
                 }
+
+                if (texType == TextureType::NONE) continue;
 
                 if (str.C_Str()[0] == '*') // embedded
                 {

@@ -74,7 +74,7 @@ vec4 pointLight()
 vec4 directLight()
 {
 	// ambient lighting
-	float ambient = 0.80f;
+	float ambient = 1.f;
 
 	// diffuse lighting
 	vec3 normal = normalize(Normal);

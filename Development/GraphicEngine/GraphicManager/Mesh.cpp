@@ -60,15 +60,12 @@ void Mesh::Draw(Shader& shader, camera::Camera& camera,
     std::vector<GLint> diffuseTextures;
     std::vector<GLint> specularTextures;
 
-    int count = 0;
     for (auto& tex : m_texture)
     {
         if (tex.type == DIFFUSE)
             diffuseTextures.push_back(tex.ID);  // actual OpenGL texture ID
         else if (tex.type == SPECULAR)
             specularTextures.push_back(tex.ID);
-        count++;
-        if (count == 2) break;
     }
 
     // Bind textures to texture units
@@ -92,20 +89,16 @@ void Mesh::Draw(Shader& shader, camera::Camera& camera,
     // Set uniform arrays in shader (texture units)
     if (!diffuseTextures.empty())
     {
-        GLint loc = glGetUniformLocation(shader.m_ID, "diffuse");
         std::vector<GLint> units(diffuseTextures.size());
         for (int i = 0; i < units.size(); i++) units[i] = i;
         shader.setUniform("diffuse", units.data(), units.size());
-
-        glUniform1iv(loc, units.size(), units.data());
     }
 
     if (!specularTextures.empty())
     {
-        GLint loc = glGetUniformLocation(shader.m_ID, "specular");
         std::vector<GLint> units(specularTextures.size());
         for (int i = 0; i < units.size(); i++) units[i] = specOffset + i;
-        glUniform1iv(loc, units.size(), units.data());
+        shader.setUniform("specular", units.data(), units.size());
     }
 
     // Set additional uniforms
