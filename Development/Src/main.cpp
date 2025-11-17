@@ -103,8 +103,8 @@ int main() {
 	Mesh testmesh(planeVertices, planeIndices, texture);
 	
 
+	Model model2("../Resource/Attack helicopter.glb");
 
-	Model model2("../Resource/person.obj");
 	auto start = std::chrono::high_resolution_clock::now(); // Start timer
 	float lastTime = static_cast<float>(glfwGetTime());
 	float deltaTime = 0.0f;
@@ -149,10 +149,6 @@ int main() {
 
 		//graphics.GetLightShader().setUniform("lightColor", glm::vec4{ 1.f,0.f,0.f,1.f });
 		
-		glm::mat4 objectModel = glm::mat4(1.0f);
-		objectModel = glm::scale(objectModel, {20,20,20});
-		
-		testmesh.Draw(graphics.GetShader(), graphics.Camera(), objectModel);
 		graphics.Draw();
 
 		

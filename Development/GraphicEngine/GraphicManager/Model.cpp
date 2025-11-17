@@ -4,6 +4,8 @@
 #include <assimp/postprocess.h>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <filesystem>
+#include <stb_image.h>
+
 
 Model::Model(const char* file, Material material):m_file(file), m_material(material) {
 
@@ -24,6 +26,12 @@ Model::Model(const char* file, Material material):m_file(file), m_material(mater
         return;
     }
 
+    m_meshes.reserve(scene->mNumMeshes);
+    m_matricesMeshes.reserve(scene->mNumMeshes);
+    m_translationsMeshes.reserve(scene->mNumMeshes);
+    m_rotationsMeshes.reserve(scene->mNumMeshes);
+    m_scalesMeshes.reserve(scene->mNumMeshes);
+
     ProcessNode(scene->mRootNode, scene);
 }
 
@@ -42,12 +50,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
     glm::mat4 nodeTransform = aiMat4ToGlm(node->mTransformation);
     glm::mat4 globalTransform = parentTransform * nodeTransform;
 
-    //reserve memory
-    m_translationsMeshes.reserve(node->mNumMeshes);
-    m_rotationsMeshes.reserve(node->mNumMeshes);
-    m_scalesMeshes.reserve(node->mNumMeshes);
-    m_matricesMeshes.reserve(node->mNumMeshes);
-    m_meshes.reserve(node->mNumMeshes);
+
 
     // Process all meshes of this node
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -81,7 +84,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
 
         std::vector<Vertex> vertices = LoadVertex(mesh);
         std::vector<GLuint> indices = LoadIndices(mesh);
-        std::vector<Texture> textures = LoadTexture(material);
+        std::vector<Texture> textures = LoadTexture(material, scene);
         m_meshes.emplace_back(vertices, indices, textures);
     }
 
@@ -158,33 +161,93 @@ std::vector<GLuint> Model::LoadIndices(const aiMesh* mesh)
     return vecIndices;
 }
 
-std::vector<Texture> Model::LoadTexture(const aiMaterial* material)
+std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScene* scene)
 {
     std::vector<Texture> textures;
 
-    // Diffuse maps
-    if (!m_material.diffuseDirectory.empty()) {
-        auto diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE, m_material.diffuseDirectory);
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+    if (m_material.empty()) {
+        for (int type = aiTextureType_NONE; type <= aiTextureType_UNKNOWN; ++type)
+        {
+            aiTextureType aiType = static_cast<aiTextureType>(type);
+            for (unsigned int i = 0; i < material->GetTextureCount(aiType); i++)
+            {
+                aiString str;
+                material->GetTexture(aiType, i, &str);
+
+                TextureType texType = TextureType::DIFFUSE; // default
+
+                switch (aiType)
+                {
+                case aiTextureType_DIFFUSE: texType = TextureType::DIFFUSE; break;
+                case aiTextureType_NORMALS: texType = TextureType::NORMAL; break;
+                case aiTextureType_SPECULAR: texType = TextureType::SPECULAR; break;
+                case aiTextureType_METALNESS: texType = TextureType::METALLIC; break;
+                case aiTextureType_DIFFUSE_ROUGHNESS: texType = TextureType::ROUGHNESS; break;
+                case aiTextureType_EMISSIVE: texType = TextureType::EMISSIVE; break;
+                case aiTextureType_AMBIENT_OCCLUSION: texType = TextureType::AO; break;
+                default: texType = TextureType::DIFFUSE; break;
+                }
+
+                if (str.C_Str()[0] == '*') // embedded
+                {
+                    unsigned int texIndex = atoi(str.C_Str() + 1);
+                    aiTexture* aiTex = scene->mTextures[texIndex];
+
+                    int width;
+                    int height;
+                    int channels;
+                    unsigned char* data;
+                    if (aiTex->mHeight == 0) // compressed
+                    {
+                        data = stbi_load_from_memory(
+                            reinterpret_cast<unsigned char*>(aiTex->pcData),
+                            aiTex->mWidth,
+                            &width, &height, &channels, 0
+                        );
+                    }
+                    else // uncompressed
+                    {
+                        data = reinterpret_cast<unsigned char*>(aiTex->pcData);
+                        width = aiTex->mWidth;
+                        height = aiTex->mHeight;
+                        channels = 4;
+                    }
+
+                    textures.emplace_back(Texture{
+                        data,
+                        width, height, channels,
+                        texType,
+                        nextTextureSlot++
+                        });
+                }
+                else
+                {
+                    textures.emplace_back(Texture(str.C_Str(), texType, nextTextureSlot++));
+                }
+            }
+        }
+
     }
+    else {
+        // Diffuse maps
+        if (!m_material.diffuseDirectory.empty()) {
+            auto diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, DIFFUSE, m_material.diffuseDirectory);
+            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        }
 
-    // Specular maps
-    if (!m_material.specularDirectory.empty()) {
+        // Specular maps
+        if (!m_material.specularDirectory.empty()) {
 
-        auto specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR, m_material.specularDirectory);
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            auto specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, SPECULAR, m_material.specularDirectory);
+            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        }
+
+        // Normal maps
+        if (!m_material.normalDirectory.empty()) {
+            auto normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, NORMAL, m_material.normalDirectory);
+            textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+        }
     }
-
-    // Normal maps
-    if (!m_material.normalDirectory.empty()) {
-        auto normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, NORMAL, m_material.normalDirectory);
-        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-    }
-
-
-
-
-
 
     return textures;
 }

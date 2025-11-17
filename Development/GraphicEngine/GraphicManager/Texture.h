@@ -3,11 +3,16 @@
 #include <glad/glad.h>
 #include "Shader.h"
 
+
 enum TextureType {
 	NONE = 0,
 	DIFFUSE,
 	SPECULAR,
-	NORMAL
+	NORMAL,
+	METALLIC,
+	ROUGHNESS,
+	EMISSIVE,
+	AO
 };
 
 class Texture
@@ -18,6 +23,7 @@ public:
 	TextureType type = NONE;
 	GLuint unit;
 	Texture(const char* image, TextureType texType, GLuint slot);
+	Texture(unsigned char* data, int width, int height, int numColCh, TextureType texType, GLuint slot);
 
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);
 	void Bind();

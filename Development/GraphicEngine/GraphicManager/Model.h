@@ -6,6 +6,10 @@ struct Material {
 	std::string diffuseDirectory;
 	std::string specularDirectory;
 	std::string normalDirectory;
+
+	bool empty() { 
+		return (diffuseDirectory.empty() && specularDirectory.empty() && normalDirectory.empty());
+	}
 };
 
 class Model {
@@ -31,6 +35,6 @@ private:
 	glm::mat4 aiMat4ToGlm(const aiMatrix4x4& from);
 	std::vector<Vertex> LoadVertex(const aiMesh* mesh);
 	std::vector<GLuint> LoadIndices(const aiMesh* mesh);
-	std::vector<Texture> LoadTexture(const aiMaterial* material);
+	std::vector<Texture> LoadTexture(const aiMaterial* material, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(const aiMaterial* mat, aiTextureType type, TextureType textureType, const std::string& directory);
 };
