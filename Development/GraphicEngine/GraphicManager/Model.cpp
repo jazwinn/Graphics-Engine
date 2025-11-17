@@ -29,6 +29,10 @@ Model::Model(const char* file, Material material):m_file(file), m_material(mater
     m_scalesMeshes.reserve(scene->mNumMeshes);
 
     ProcessNode(scene->mRootNode, scene);
+    
+
+    //clear cache
+    m_loadedMaterialTextures.clear();
 }
 
 void Model::Draw(Shader& shader, camera::Camera& cam) {
@@ -46,7 +50,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
     glm::mat4 nodeTransform = aiMat4ToGlm(node->mTransformation);
     glm::mat4 globalTransform = parentTransform * nodeTransform;
 
-
+   
 
     // Process all meshes of this node
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -58,7 +62,6 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
         {
             continue;   // Skip this mesh
         }
-
         // Store global matrix for the mesh
         m_matricesMeshes.push_back(globalTransform);
 
@@ -77,10 +80,24 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTran
         //load mesh
         
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        std::string materialName = material->GetName().C_Str();
 
         std::vector<Vertex> vertices = LoadVertex(mesh);
         std::vector<GLuint> indices = LoadIndices(mesh);
-        std::vector<Texture> textures = LoadTexture(material, scene);
+        std::vector<Texture> textures;
+
+        
+        
+        if (m_loadedMaterialTextures.find(materialName) != m_loadedMaterialTextures.end())
+        {
+            textures = m_loadedMaterialTextures.at(materialName);
+        }
+        else
+        {
+            textures = LoadTexture(material, scene);
+            m_loadedMaterialTextures[materialName] = textures;
+        }
+
         m_meshes.emplace_back(vertices, indices, textures);
     }
 
@@ -218,7 +235,8 @@ std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScen
                 }
                 else
                 {
-                    textures.emplace_back(Texture(str.C_Str(), texType, nextTextureSlot++));
+                    std::filesystem::path path = std::filesystem::absolute(m_file).parent_path();
+                    textures.emplace_back(Texture((path.string() + "/" + str.C_Str()).c_str(), texType, nextTextureSlot++));
                 }
             }
         }

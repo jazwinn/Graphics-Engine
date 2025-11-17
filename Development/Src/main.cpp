@@ -102,9 +102,9 @@ int main() {
 	std::vector<Texture> texture = { Texture("../Resource/diffuse.jpg",DIFFUSE,0), Texture("../Resource/specular.jpg", SPECULAR, 1)};
 	Mesh testmesh(planeVertices, planeIndices, texture);
 	
-
-	Model model2("../Resource/car.blend");
-
+	
+	//Model model2("../Resource/Only_Spider_with_Animations_Export.obj");
+	Model model2("../Resource/Attack helicopter.glb");
 	auto start = std::chrono::high_resolution_clock::now(); // Start timer
 	float lastTime = static_cast<float>(glfwGetTime());
 	float deltaTime = 0.0f;

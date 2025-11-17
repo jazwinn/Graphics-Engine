@@ -112,9 +112,9 @@ void Texture::texUnit(Shader& shader, const char* uniform, GLuint unit)
 	shader.setUniform(uniform, unit);//unit : 0 to correspons with GL_TEXTURE0
 }
 
-void Texture::Bind()
+void Texture::Bind(GLuint slot)
 {
-	glActiveTexture(GL_TEXTURE0 + unit);
+	glActiveTexture(GL_TEXTURE0 + unit + slot);
 	glBindTexture(GL_TEXTURE_2D, ID);
 }
 

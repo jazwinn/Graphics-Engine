@@ -1,15 +1,20 @@
 #version 330 core
 
+#define MAX_DIFFUSE 4
+#define MAX_SPECULAR 4
+
 in vec3 crntPos;
 in vec3 Normal;
 in vec4 color;
 in vec2 texCoord;
 
-
 out vec4 FragColor;
 
-uniform sampler2D diffuse0;
-uniform sampler2D specular0;
+uniform sampler2D diffuse[MAX_DIFFUSE];
+uniform sampler2D specular[MAX_SPECULAR];
+uniform int diffuseCount;
+uniform int specularCount;
+
 uniform vec4 lightColor = vec4(1.0);;
 uniform vec3 lightPos = vec3(0.0, 5.0, 0.0);;
 uniform vec3 camPos;
@@ -17,20 +22,25 @@ uniform int lightType;
 uniform bool useTexture;
 
 vec4 getDiffuseColor() {
-    if (useTexture) {
-        return texture(diffuse0, texCoord); // use texture
-    } else {
-        return vec4(1.0); // fallback to white
+    if (!useTexture || diffuseCount == 0) return vec4(1.0);
+
+    vec4 result = vec4(0.0);
+    for (int i = 0; i < diffuseCount; i++) {
+        result += texture(diffuse[i], texCoord);
     }
+    return result / float(diffuseCount);
 }
 
 float getSpecularValue() {
-    if (useTexture) {
-        return texture(specular0, texCoord).r; // use texture
-    } else {
-        return 1.0; // fallback to full specular
+    if (!useTexture || specularCount == 0) return 1.0;
+
+    float result = 0.0;
+    for (int i = 0; i < specularCount; i++) {
+        result = max(result, texture(specular[i], texCoord).r);
     }
+    return result;
 }
+
 
 
 vec4 pointLight()

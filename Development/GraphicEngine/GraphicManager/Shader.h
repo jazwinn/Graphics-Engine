@@ -106,5 +106,18 @@ public:
     void setUniform(const std::string& name, GLuint val) {
         glUniform1ui(getUniformLocation(name), val);
     }
+
+    void setUniform(const std::string& name, const GLint* val, GLsizei count) {
+        glUniform1iv(getUniformLocation(name), count, val);
+    }
+
+    void setUniform(const std::string& name, const GLuint* val, GLsizei count) {
+        glUniform1uiv(getUniformLocation(name), count, val);
+    }
+
+    void setUniform(const std::string& name, const GLfloat* val, GLsizei count) {
+        glUniform1fv(getUniformLocation(name), count, val);
+    }
+
 };
 

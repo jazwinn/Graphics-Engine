@@ -30,6 +30,7 @@ private:
 	std::vector<glm::mat4> m_matricesMeshes;
 
 	unsigned int nextTextureSlot = 0;
+	std::map<std::string, std::vector<Texture>> m_loadedMaterialTextures;
 
 	void ProcessNode(aiNode* node, const aiScene* scene, glm::mat4 parentTransform = glm::mat4(1.0f));
 	glm::mat4 aiMat4ToGlm(const aiMatrix4x4& from);

@@ -26,7 +26,7 @@ public:
 	Texture(unsigned char* data, int width, int height, int numColCh, TextureType texType, GLuint slot);
 
 	void texUnit(Shader& shader, const char* uniform, GLuint unit);
-	void Bind();
+	void Bind(GLuint slot = 0);
 	void Unbind();
 	void Delete();
 

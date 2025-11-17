@@ -50,68 +50,90 @@ Mesh::~Mesh()
 }
 
 void Mesh::Draw(Shader& shader, camera::Camera& camera,
-	const glm::mat4& model,
-	const glm::vec3& translation,
-	const glm::quat& rotation,
-	const glm::vec3& scale,
-	GLenum mode)
+    const glm::mat4& model,
+    const glm::vec3& translation,
+    const glm::quat& rotation,
+    const glm::vec3& scale,
+    GLenum mode)
 {
-	// Keep track of how many of each type of textures we have
-	unsigned int numDiffuse = 0;
-	unsigned int numSpecular = 0;
+    // Collect texture IDs by type
+    std::vector<GLint> diffuseTextures;
+    std::vector<GLint> specularTextures;
 
-	for (unsigned int i = 0; i < m_texture.size(); i++)
-	{
-		std::string num;
-		TextureType type = m_texture[i].type;
-		std::string typeString;
-		if (type == DIFFUSE)
-		{
-			num = std::to_string(numDiffuse++);
-			typeString = "diffuse";
-		}
-		else if (type == SPECULAR)
-		{
-			num = std::to_string(numSpecular++);
-			typeString = "specular";
-		}
-		m_texture[i].texUnit(shader, (typeString + num).c_str(), i);
-		m_texture[i].Bind();
-	}
-	bool useTexture = m_texture.size() > 0;
+    int count = 0;
+    for (auto& tex : m_texture)
+    {
+        if (tex.type == DIFFUSE)
+            diffuseTextures.push_back(tex.ID);  // actual OpenGL texture ID
+        else if (tex.type == SPECULAR)
+            specularTextures.push_back(tex.ID);
+        count++;
+        if (count == 2) break;
+    }
 
+    // Bind textures to texture units
+    glUseProgram(shader.m_ID);
 
+    // Diffuse textures
+    for (int i = 0; i < diffuseTextures.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, diffuseTextures[i]);
+    }
 
-	shader.Activate();
-	shader.setUniform("camVP", camera.GetViewProjectionMatrix());
-	shader.setUniform("camPos", camera.GetPosition());
-	shader.setUniform("useTexture", useTexture);
-	
+    // Specular textures (after diffuse units)
+    int specOffset = diffuseTextures.size();
+    for (int i = 0; i < specularTextures.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + specOffset + i);
+        glBindTexture(GL_TEXTURE_2D, specularTextures[i]);
+    }
 
-	m_VAO.Bind();
+    // Set uniform arrays in shader (texture units)
+    if (!diffuseTextures.empty())
+    {
+        GLint loc = glGetUniformLocation(shader.m_ID, "diffuse");
+        std::vector<GLint> units(diffuseTextures.size());
+        for (int i = 0; i < units.size(); i++) units[i] = i;
+        shader.setUniform("diffuse", units.data(), units.size());
 
-	if (m_instance == 1) {
+        glUniform1iv(loc, units.size(), units.data());
+    }
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		glm::mat4 rot = glm::mat4(1.0f);
-		glm::mat4 sca = glm::mat4(1.0f);
+    if (!specularTextures.empty())
+    {
+        GLint loc = glGetUniformLocation(shader.m_ID, "specular");
+        std::vector<GLint> units(specularTextures.size());
+        for (int i = 0; i < units.size(); i++) units[i] = specOffset + i;
+        glUniform1iv(loc, units.size(), units.data());
+    }
 
-		// Transform the matrices to their correct form
-		trans = glm::translate(trans, translation);
-		rot = glm::mat4_cast(rotation);
-		sca = glm::scale(sca, scale);
+    // Set additional uniforms
+    shader.Activate();
+    shader.setUniform("diffuseCount", static_cast<int>(diffuseTextures.size()));
+    shader.setUniform("specularCount", static_cast<int>(specularTextures.size()));
+    shader.setUniform("useTexture", !m_texture.empty());
+    shader.setUniform("camVP", camera.GetViewProjectionMatrix());
+    shader.setUniform("camPos", camera.GetPosition());
 
-		shader.setUniform("translation", trans);
-		shader.setUniform("rotation", rot);
-		shader.setUniform("scale", sca);
-		shader.setUniform("model", model);
+    // Compute model transforms
+    glm::mat4 trans = glm::translate(glm::mat4(1.0f), translation);
+    glm::mat4 rot = glm::mat4_cast(rotation);
+    glm::mat4 sca = glm::scale(glm::mat4(1.0f), scale);
 
-		glDrawElements(mode, m_indices.size(), GL_UNSIGNED_INT, 0);
-		
-	}
-	else {
-		glDrawElementsInstanced(mode, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance);
-	}
+    shader.setUniform("translation", trans);
+    shader.setUniform("rotation", rot);
+    shader.setUniform("scale", sca);
+    shader.setUniform("model", model);
 
-	m_VAO.Unbind();
+    // Draw
+    m_VAO.Bind();
+    if (m_instance == 1)
+        glDrawElements(mode, m_indices.size(), GL_UNSIGNED_INT, 0);
+    else
+        glDrawElementsInstanced(mode, m_indices.size(), GL_UNSIGNED_INT, 0, m_instance);
+    m_VAO.Unbind();
+
+    // Reset active texture (optional, good practice)
+    glActiveTexture(GL_TEXTURE0);
 }
