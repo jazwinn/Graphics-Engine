@@ -4,6 +4,7 @@
 #include "Shader.h"
 
 enum TextureType {
+	NONE = 0,
 	DIFFUSE,
 	SPECULAR,
 	NORMAL
@@ -14,7 +15,7 @@ class Texture
 
 public:
 	GLuint ID;
-	TextureType type;
+	TextureType type = NONE;
 	GLuint unit;
 	Texture(const char* image, TextureType texType, GLuint slot);
 

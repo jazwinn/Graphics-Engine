@@ -56,8 +56,38 @@ void Mesh::Draw(Shader& shader, camera::Camera& camera,
 	const glm::vec3& scale,
 	GLenum mode)
 {
+	// Keep track of how many of each type of textures we have
+	unsigned int numDiffuse = 0;
+	unsigned int numSpecular = 0;
+
+	for (unsigned int i = 0; i < m_texture.size(); i++)
+	{
+		std::string num;
+		TextureType type = m_texture[i].type;
+		std::string typeString;
+		if (type == DIFFUSE)
+		{
+			num = std::to_string(numDiffuse++);
+			typeString = "diffuse";
+		}
+		else if (type == SPECULAR)
+		{
+			num = std::to_string(numSpecular++);
+			typeString = "specular";
+		}
+		m_texture[i].texUnit(shader, (typeString + num).c_str(), i);
+		m_texture[i].Bind();
+	}
+	bool useTexture = m_texture.size() > 0;
+
+
+
 	shader.Activate();
 	shader.setUniform("camVP", camera.GetViewProjectionMatrix());
+	shader.setUniform("camPos", camera.GetPosition());
+	shader.setUniform("useTexture", useTexture);
+	
+
 	m_VAO.Bind();
 
 	if (m_instance == 1) {

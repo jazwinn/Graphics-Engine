@@ -33,6 +33,7 @@ private:
 
     GLint getUniformLocation(const std::string& name)
     {
+        Activate();
         // Search for the uniform location in the cache
         auto pos = uniformLocations.find(name);
         if (pos == uniformLocations.end())

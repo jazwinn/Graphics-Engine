@@ -38,7 +38,7 @@ namespace graphic {
 		shapes::Shapes& Shapes() { return m_Shapes; }
 		Shader& GetShader() { return m_genericShader; }
 		Shader& GetInstancedShader() { return m_InstancedShader; }
-
+		Shader& GetLightShader() { return m_lightShader; }
 
 		GraphicConfig config;
 	
@@ -46,6 +46,7 @@ namespace graphic {
 
 		Shader m_genericShader;
 		Shader m_InstancedShader;
+		Shader m_lightShader;
 		window::Window& m_window;
 		shapes::Shapes m_Shapes;
 		camera::Camera m_camera;

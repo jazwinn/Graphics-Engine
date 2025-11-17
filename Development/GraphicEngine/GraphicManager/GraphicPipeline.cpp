@@ -1,6 +1,5 @@
 #include "GraphicPipeline.h"
 #include <stb_image.h>
-#include <algorithm>
 
 namespace graphic { 
 	
@@ -9,6 +8,7 @@ namespace graphic {
 	GraphicPipeline::GraphicPipeline(window::Window& _window):
 		m_genericShader("../GraphicEngine/GraphicManager/Shaders/genericVertexShader.vert", "../GraphicEngine/GraphicManager/Shaders/genericFragmentShader.frag"),
 		m_InstancedShader("../GraphicEngine/GraphicManager/Shaders/instancedVertexShader.vert", "../GraphicEngine/GraphicManager/Shaders/instancedFragmentShader.frag"),
+		m_lightShader("../GraphicEngine/GraphicManager/Shaders/lightVertexShader.vert", "../GraphicEngine/GraphicManager/Shaders/lightFragmentShader.frag"),
 		m_window{ _window },
 		m_camera(m_window.GetWindowWidth(), m_window.GetWindowHeigth()),
 		m_Shapes{m_camera, m_genericShader, m_InstancedShader }

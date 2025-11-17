@@ -8,6 +8,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/quaternion.hpp"
 
+#include <vector>
+
 
 
 struct Instance {
@@ -20,7 +22,7 @@ struct Instance {
 class Mesh
 {
 public:
-	Mesh(const std::vector<Vertex>& vboData, const std::vector<GLuint>& eboData, const std::vector<Texture>& texture, GLuint instanced = 1, 
+	Mesh(const std::vector<Vertex>& vboData, const std::vector<GLuint>& eboData, const std::vector<Texture>& texture = std::vector<Texture>(), GLuint instanced = 1,
 		 const std::vector<glm::mat4x4>& instanceMatrix = {},  GLenum DrawType = GL_DYNAMIC_DRAW, GLenum target = GL_ARRAY_BUFFER );
 	~Mesh();
 	
