@@ -238,7 +238,9 @@ std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScen
                 else
                 {
                     std::filesystem::path path = std::filesystem::absolute(m_file).parent_path();
-                    textures.emplace_back(Texture((path.string() + "/" + str.C_Str()).c_str(), texType, nextTextureSlot++));
+                    std::string filepath = path.string() + "/" + str.C_Str();
+                    if (!std::filesystem::exists(filepath)) continue;
+                    textures.emplace_back(Texture((filepath).c_str(), texType, nextTextureSlot++));
                 }
             }
         }
