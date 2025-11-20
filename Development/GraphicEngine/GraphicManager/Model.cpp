@@ -11,12 +11,15 @@ Model::Model(const char* file, Material material):m_file(file), m_material(mater
 
     Assimp::Importer importer;
     importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, false);
-    const aiScene* scene = importer.ReadFile(m_file, 
-        aiProcess_Triangulate |
-        aiProcess_FlipUVs |
-        aiProcess_GenNormals |
-        aiProcess_SortByPType
-    );
+
+
+
+    bool isGLB = std::filesystem::path(m_file).extension() == ".glb";
+    unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_SortByPType;
+    if (!isGLB)
+        flags |= aiProcess_FlipUVs;
+
+    const aiScene* scene = importer.ReadFile(m_file, flags);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         std::cerr << "Assimp error: " << importer.GetErrorString() << std::endl;
         return;
@@ -225,7 +228,16 @@ std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScen
                         data = reinterpret_cast<unsigned char*>(aiTex->pcData);
                         width = aiTex->mWidth;
                         height = aiTex->mHeight;
-                        channels = 4;
+                        channels = 4; // default
+
+                        std::string hint = aiTex->achFormatHint;
+                        if (hint == "jpg" || hint == "jpeg") { /* load as compressed */ }
+                        if (hint == "png") { /* load as compressed */ }
+
+                        if (hint == "rgba") channels = 4;
+                        else if (hint == "rgb") channels = 3;
+                        else if (hint == "rg") channels = 2;
+                        else if (hint == "r") channels = 1;
                     }
 
                     textures.emplace_back(Texture{
@@ -238,8 +250,18 @@ std::vector<Texture> Model::LoadTexture(const aiMaterial* material, const aiScen
                 else
                 {
                     std::filesystem::path path = std::filesystem::absolute(m_file).parent_path();
+                        
                     std::string filepath = path.string() + "/" + str.C_Str();
-                    if (!std::filesystem::exists(filepath)) continue;
+                    if (!std::filesystem::exists(filepath)) {
+                        // check anothe possible file path
+                        std::string filename = std::filesystem::path(str.C_Str()).filename().string();
+                        filepath = path.string() + "/" + filename;
+
+                        if (!std::filesystem::exists(filepath)) {
+                            continue;
+                        }
+                        
+                    }
                     textures.emplace_back(Texture((filepath).c_str(), texType, nextTextureSlot++));
                 }
             }
