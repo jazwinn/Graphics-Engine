@@ -103,7 +103,7 @@ int main() {
 	Mesh testmesh(planeVertices, planeIndices, texture);
 	
 	
-	Model model2("../Resource/spider.obj");
+	Model model2("../Resource/scene.gltf");
 	//Model model2("../Resource/eve.fbx");
 	auto start = std::chrono::high_resolution_clock::now(); // Start timer
 	float lastTime = static_cast<float>(glfwGetTime());

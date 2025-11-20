@@ -14,9 +14,9 @@ Model::Model(const char* file, Material material):m_file(file), m_material(mater
 
 
 
-    bool isGLB = std::filesystem::path(m_file).extension() == ".glb";
+    std::string extension = std::filesystem::path(m_file).extension().string() ;
     unsigned int flags = aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_SortByPType;
-    if (!isGLB)
+    if (!(extension == ".glb" || extension == ".gltf"))
         flags |= aiProcess_FlipUVs;
 
     const aiScene* scene = importer.ReadFile(m_file, flags);
